@@ -300,10 +300,10 @@ public class FormPembayaran extends javax.swing.JFrame {
             Logger.getLogger(FormPembayaran.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        pesananDitemukan = pesananManajer.getPesananByNoMeja(noMeja);
+        this.pesananDitemukan = pesananManajer.getPesananByNoMeja(noMeja);
         int totalPesanan;
-        if (pesananDitemukan != null) {
-            totalPesanan = pesananDitemukan.getTotal_pesanan();
+        if (this.pesananDitemukan != null) {
+            totalPesanan = this.pesananDitemukan.getTotal_pesanan();
         } else {
             totalPesanan = pesananManajer.getTotalPesananByNoMeja(noMeja);
         }
@@ -356,32 +356,32 @@ public class FormPembayaran extends javax.swing.JFrame {
             pembayaranManajer.savePembayaranToDb(pembayaran);
             
             // tandai pesanan sudah dibayar
-            pesananManajer.pesananTelahDibayar(pesananDitemukan);
+            //pesananManajer.pesananTelahDibayar(this.pesananDitemukan); // ada bug disini, mungkin object pesananDitemukan tidak ada
             
             // beri pesan jika simpan database berhasil
-            //infoJLabel.setText("Data pembayaran berhasil disimpan.");
-            //infoJLabel.setForeground(Color.blue);
-            JOptionPane.showMessageDialog(
-                    this
-                    , "Data pembayaran berhasil disimpan"
-                    , "Informasi"
-                    , JOptionPane.INFORMATION_MESSAGE
-            );
+            infoJLabel.setText("Data pembayaran berhasil disimpan.");
+            infoJLabel.setForeground(Color.blue);
+            //JOptionPane.showMessageDialog(
+            //        this
+            //        , "Data pembayaran berhasil disimpan"
+            //        , "Informasi"
+            //        , JOptionPane.INFORMATION_MESSAGE
+            //);
             
             this.resetForm();
             
-            detailPembayaranTableModel.fireTableDataChanged();
+            this.populateDetailPembayaranJTable();
                         
         } catch (SQLException ex) {
             //infoJLabel.setText("Data pembayaran GAGAL disimpan.");
             //infoJLabel.setForeground(Color.red);
             
-            JOptionPane.showMessageDialog(
-                    this
-                    , "Data pembayaran GAGAL disimpan"
-                    , "Terjadi Kesalahan"
-                    , JOptionPane.ERROR_MESSAGE
-            );
+            //JOptionPane.showMessageDialog(
+            //        this
+            //        , "Data pembayaran GAGAL disimpan"
+            //        , "Terjadi Kesalahan"
+            //        , JOptionPane.ERROR_MESSAGE
+            //);
             
             Logger.getLogger(FormPembayaran.class.getName()).log(Level.SEVERE, null, ex);
         }
