@@ -31,9 +31,6 @@ public class FormPesanan extends javax.swing.JFrame {
      */
     public FormPesanan() {
         initComponents();
-        paketManajer = new PaketManajer();
-        pesananManajer = new PesananManajer();
-        buildAllPaketComboBox();
     }
 
     /**

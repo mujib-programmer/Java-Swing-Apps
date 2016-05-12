@@ -6,6 +6,7 @@
 package com.mujib.gui;
 
 import com.mujib.MainApps;
+import com.mujib.entity.PaketManajer;
 import com.mujib.entity.Pembayaran;
 import com.mujib.entity.PembayaranManajer;
 import com.mujib.entity.Pesanan;
@@ -24,6 +25,7 @@ import javax.swing.table.DefaultTableModel;
 public class FormPembayaran extends javax.swing.JFrame {
     
     private MainApps apps;
+    private PaketManajer paketManajer;
     private PesananManajer pesananManajer;
     private PembayaranManajer pembayaranManajer;
     Pesanan pesananDitemukan;
@@ -36,13 +38,6 @@ public class FormPembayaran extends javax.swing.JFrame {
      */
     public FormPembayaran() {
         initComponents();
-        //pesananManajer = new PesananManajer();
-        pembayaranManajer = new PembayaranManajer();
-        try {
-            populateDetailPembayaranJTable();
-        } catch (SQLException ex) {
-            Logger.getLogger(FormPembayaran.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     /**
@@ -293,7 +288,7 @@ public class FormPembayaran extends javax.swing.JFrame {
     private void cariJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cariJButtonActionPerformed
         // TODO add your handling code here:
         int noMeja = Integer.parseInt(noMejaJTextField.getText());
-        PesananManajer pesananManajer = this.apps.getPesananManajer();
+        pesananManajer = this.apps.getPesananManajer();
         try {
             pesananManajer.populatePesanan();
         } catch (SQLException ex) {
@@ -353,10 +348,11 @@ public class FormPembayaran extends javax.swing.JFrame {
         pembayaran.setStruk(strukJTextArea.getText());
         
         try {
-            pembayaranManajer.savePembayaranToDb(pembayaran);
+            getPembayaranManajer().savePembayaranToDb(pembayaran);
             
             // tandai pesanan sudah dibayar
-            //pesananManajer.pesananTelahDibayar(this.pesananDitemukan); // ada bug disini, mungkin object pesananDitemukan tidak ada
+            //System.out.println("id pesanan adalah " + this.pesananDitemukan.getId_pesanan());
+            pesananManajer.pesananTelahDibayar(this.pesananDitemukan); // ada bug disini, mungkin object pesananDitemukan tidak ada
             
             // beri pesan jika simpan database berhasil
             infoJLabel.setText("Data pembayaran berhasil disimpan.");
@@ -504,9 +500,9 @@ public class FormPembayaran extends javax.swing.JFrame {
         
         detailPembayaranJTable.setModel(detailPembayaranTableModel);
         
-        this.pembayaranManajer.populatePembayaran();
+        this.getPembayaranManajer().populatePembayaran();
         
-        for(Pembayaran pembayaran : this.pembayaranManajer.getDaftarPembayaran()) {
+        for(Pembayaran pembayaran : this.getPembayaranManajer().getDaftarPembayaran()) {
             Object[] detailPembayaran = new Object[5];
             detailPembayaran[0] = pembayaran.getNo_meja();
             detailPembayaran[1] = pembayaran.getTotal_pesanan();
@@ -520,5 +516,33 @@ public class FormPembayaran extends javax.swing.JFrame {
             totalPendapatanJTextField.setText(Integer.toString(totalPendapatan));
         }
         
+    }
+
+    /**
+     * @return the pembayaranManajer
+     */
+    public PembayaranManajer getPembayaranManajer() {
+        return pembayaranManajer;
+    }
+
+    /**
+     * @param pembayaranManajer the pembayaranManajer to set
+     */
+    public void setPembayaranManajer(PembayaranManajer pembayaranManajer) {
+        this.pembayaranManajer = pembayaranManajer;
+    }
+
+    /**
+     * @return the paketManajer
+     */
+    public PaketManajer getPaketManajer() {
+        return paketManajer;
+    }
+
+    /**
+     * @param paketManajer the paketManajer to set
+     */
+    public void setPaketManajer(PaketManajer paketManajer) {
+        this.paketManajer = paketManajer;
     }
 }
