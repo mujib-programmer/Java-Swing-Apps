@@ -58,7 +58,7 @@ public class MainApps {
     
     public void showFormPesanan() {
         try {
-            this.fPembayaran.populateDetailPembayaranJTable();
+            this.fPembayaran.populateDaftarPesananJTable();
         } catch (SQLException ex) {
             Logger.getLogger(MainApps.class.getName()).log(Level.SEVERE, null, ex);
         }
