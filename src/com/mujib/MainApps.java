@@ -57,11 +57,23 @@ public class MainApps {
     }
     
     public void showFormPesanan() {
+        try {
+            this.fPembayaran.populateDetailPembayaranJTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(MainApps.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         this.fPesanan.setVisible(true);
         this.fPembayaran.setVisible(false);
     }
     
     public void showFormPembayaran() {
+        try {
+            this.fPesanan.populateDaftarPesananJTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(MainApps.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         this.fPesanan.setVisible(false);
         this.fPembayaran.setVisible(true);
     }
