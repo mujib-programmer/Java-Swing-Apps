@@ -332,7 +332,11 @@ public class FormPembayaran extends javax.swing.JFrame {
         int uangPembayaran = Integer.parseInt(uangPembayaranJTextField.getText());
         int uangKembali = uangPembayaran - (totalPesanan + ppn );
         uangKembaliJTextField.setText(Integer.toString(uangKembali));
-        String struk = "No Meja: " + noMejaJTextField.getText() + "\n";
+        String struk = "Konten Struk: " + "\n";
+        struk = "No Meja: " + noMejaJTextField.getText() + "\n";
+        struk += "Pil. Paket 1: " + pesananDitemukan.getJml_paket_1() + "@" + paketManajer.getHargaPaketByNamaItemAndCategory(pesananDitemukan.getItem_paket_1(), 1) + "\n";
+        struk += "Pil. Paket 2: " + pesananDitemukan.getJml_paket_2() + "@" + paketManajer.getHargaPaketByNamaItemAndCategory(pesananDitemukan.getItem_paket_2(), 2) + "\n";
+        struk += "Pil. Paket 3: " + pesananDitemukan.getJml_paket_3() + "@" + paketManajer.getHargaPaketByNamaItemAndCategory(pesananDitemukan.getItem_paket_3(), 3) + "\n";      
         struk += "Total Pesanan: " + totalPesanan + "\n";
         struk += "PPN: " + ppn + "\n";
         struk += "Uang Pembayaran: " + uangPembayaran + "\n";
