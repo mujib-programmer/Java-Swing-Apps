@@ -116,8 +116,8 @@ public class PesananManajer {
     }
     
     public void pesananTelahDibayar(Pesanan pesanan) throws SQLException {
-        System.out.println("DEBUGGING pesananTelahDibayar!!!!");
-        System.out.println("id pesanan: " + pesanan.getId_pesanan());
+        //System.out.println("DEBUGGING pesananTelahDibayar!!!!");
+        //System.out.println("id pesanan: " + pesanan.getId_pesanan());
         
         PreparedStatement ps = dbCon.prepareStatement("update pesanan set telah_dibayar=? where id_pesanan=?");            
         ps.setInt(1, 1);
@@ -125,6 +125,22 @@ public class PesananManajer {
 
         // simpan ke database
         ps.executeUpdate();
+        
+    }
+    
+    public boolean hapusPesanan(int idPesanan) throws SQLException {
+        
+        // System.out.println("id_pesanan yang akan dihapus adalah: " + idPesanan);
+        
+        String sql="DELETE FROM pesanan WHERE id_pesanan=?";
+        PreparedStatement ps = dbCon.prepareStatement(sql);
+        ps.setInt(1, idPesanan);
+        
+        if (ps.executeUpdate()>0){
+            return true;
+        } else {
+            return false;
+        }
         
     }
 

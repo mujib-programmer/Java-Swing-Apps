@@ -17,7 +17,10 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 /**
  *
@@ -30,6 +33,7 @@ public class FormPesanan extends javax.swing.JFrame {
     private PesananManajer pesananManajer;
 
     DefaultTableModel daftarPesananTableModel;
+    int idPesananTerpilih = 0;
         
     /**
      * Creates new form FormPesanan
@@ -187,13 +191,13 @@ public class FormPesanan extends javax.swing.JFrame {
 
         daftarPesananJTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5", "Title 6"
             }
         ));
         jScrollPane2.setViewportView(daftarPesananJTable);
@@ -285,8 +289,8 @@ public class FormPesanan extends javax.swing.JFrame {
                                             .addComponent(simpanJButton, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
                                             .addComponent(totalPesananJTextField)
                                             .addComponent(bayarPaketTambahanJTextField))))))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 625, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -356,19 +360,38 @@ public class FormPesanan extends javax.swing.JFrame {
 
     private void hapusJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hapusJButtonActionPerformed
         // TODO add your handling code here:
-        int jmlBeliPaketMakan = Integer.parseInt(jmlBeliPaketMakanJTextField.getText());
-        int jmlBeliPaketMinum = Integer.parseInt(jmlBeliPaketMinumJTextField.getText());
-        int jmlBeliPaketTambahan = Integer.parseInt(jmlBeliPaketTambahanJTextField.getText());
+        if (idPesananTerpilih == 0) {
+            infoJLabel.setText("Pilih pesanan pada tabel yang ingin dihapus!");
+            infoJLabel.setForeground(Color.red);
+        } else {
+            
+            System.out.println("idPesananTerpilih : " + idPesananTerpilih);
+            
+            boolean hapusPesananSukses = false;
+            
+            try {
+                hapusPesananSukses = this.pesananManajer.hapusPesanan(idPesananTerpilih);
+            } catch (SQLException ex) {
+                Logger.getLogger(FormPesanan.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            if (hapusPesananSukses) {
+                infoJLabel.setText("Data pesanan berhasil dihapus");
+                infoJLabel.setForeground(Color.blue);
+                
+                // TODO: REMOVE SELECTED TABLE
+                //int[] rows = daftarPesananJTable.getSelectedRows();
+                //for(int i=0;i<rows.length;i++){
+                //  daftarPesananTableModel.removeRow(rows[i]-i);
+                //}
+                
+                
+            } else {
+                infoJLabel.setText("Data pesanan gagal dihapus!");
+                infoJLabel.setForeground(Color.red);
+            }
+        }
         
-        int bayarPaketMakan = jmlBeliPaketMakan * (Integer.parseInt(hargaPaketMakanJTextField.getText()));
-        int bayarPaketMinum = jmlBeliPaketMinum * (Integer.parseInt(hargaPaketMinumJTextField.getText()));
-        int bayarPaketTambahan = jmlBeliPaketTambahan * (Integer.parseInt(hargaPaketTambahanJTextField.getText()));
-        
-        bayarPaketMakanJTextField.setText(Integer.toString(bayarPaketMakan));
-        bayarPaketMinumJTextField.setText(Integer.toString(bayarPaketMinum));
-        bayarPaketTambahanJTextField.setText(Integer.toString(bayarPaketTambahan));
-        
-        totalPesananJTextField.setText(Integer.toString(bayarPaketMakan + bayarPaketMinum + bayarPaketTambahan));
     }//GEN-LAST:event_hapusJButtonActionPerformed
 
     private void closeJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJMenuItemActionPerformed
@@ -656,6 +679,7 @@ public class FormPesanan extends javax.swing.JFrame {
         PesananManajer pesananMan = new PesananManajer();
         
         daftarPesananTableModel = new DefaultTableModel();
+        daftarPesananTableModel.addColumn("Id Pesanan");
         daftarPesananTableModel.addColumn("No Meja");
         daftarPesananTableModel.addColumn("Pil.Paket 1");
         daftarPesananTableModel.addColumn("Pil.Paket 2");
@@ -668,23 +692,36 @@ public class FormPesanan extends javax.swing.JFrame {
         pesananMan.populatePesanan();
         
         for(Pesanan pesanan : pesananMan.getDaftarPesanan()) {
-            Object[] daftarPesanan = new Object[6];
-            daftarPesanan[0] = pesanan.getNo_meja();
-            daftarPesanan[1] = pesanan.getItem_paket_1();
-            daftarPesanan[2] = pesanan.getItem_paket_2();
-            daftarPesanan[3] = pesanan.getItem_paket_3();
-            daftarPesanan[4] = pesanan.getTotal_pesanan();
+            Object[] daftarPesanan = new Object[7];
+            daftarPesanan[0] = pesanan.getId_pesanan();
+            daftarPesanan[1] = pesanan.getNo_meja();
+            daftarPesanan[2] = pesanan.getItem_paket_1();
+            daftarPesanan[3] = pesanan.getItem_paket_2();
+            daftarPesanan[4] = pesanan.getItem_paket_3();
+            daftarPesanan[5] = pesanan.getTotal_pesanan();
             
             String telahDibayar = "";
             if ( pesanan.getTelah_dibayar() == 1 ) {
                 telahDibayar = "OK";
             }
             
-            daftarPesanan[5] = telahDibayar;
+            daftarPesanan[6] = telahDibayar;
             
             daftarPesananTableModel.addRow(daftarPesanan);
             
         }
+        
+        // sembunyikan row ID Pesanan
+        daftarPesananJTable.removeColumn(daftarPesananJTable.getColumnModel().getColumn(1));
+        
+        // add selection listener
+        daftarPesananJTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                idPesananTerpilih = Integer.parseInt( daftarPesananJTable.getValueAt(daftarPesananJTable.getSelectedRow(), 0).toString() );
+                
+            }
+        });
         
     }
     
