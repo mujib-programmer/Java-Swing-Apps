@@ -365,7 +365,7 @@ public class FormPesanan extends javax.swing.JFrame {
             infoJLabel.setForeground(Color.red);
         } else {
             
-            System.out.println("idPesananTerpilih : " + idPesananTerpilih);
+            //System.out.println("idPesananTerpilih : " + idPesananTerpilih);
             
             boolean hapusPesananSukses = false;
             
@@ -379,12 +379,11 @@ public class FormPesanan extends javax.swing.JFrame {
                 infoJLabel.setText("Data pesanan berhasil dihapus");
                 infoJLabel.setForeground(Color.blue);
                 
-                // TODO: REMOVE SELECTED TABLE
-                //int[] rows = daftarPesananJTable.getSelectedRows();
-                //for(int i=0;i<rows.length;i++){
-                //  daftarPesananTableModel.removeRow(rows[i]-i);
-                //}
-                
+                try {
+                    this.populateDaftarPesananJTable();
+                } catch (SQLException ex) {
+                    Logger.getLogger(FormPesanan.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 
             } else {
                 infoJLabel.setText("Data pesanan gagal dihapus!");
@@ -718,8 +717,12 @@ public class FormPesanan extends javax.swing.JFrame {
         daftarPesananJTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                idPesananTerpilih = Integer.parseInt( daftarPesananJTable.getValueAt(daftarPesananJTable.getSelectedRow(), 0).toString() );
                 
+                try  {
+                    idPesananTerpilih = Integer.parseInt( daftarPesananJTable.getValueAt(daftarPesananJTable.getSelectedRow(), 0).toString() );
+                } catch (java.lang.ArrayIndexOutOfBoundsException ex) {
+                    idPesananTerpilih = 0;
+                }
             }
         });
         
