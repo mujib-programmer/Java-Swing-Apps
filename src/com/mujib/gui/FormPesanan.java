@@ -711,7 +711,7 @@ public class FormPesanan extends javax.swing.JFrame {
         }
         
         // sembunyikan row ID Pesanan
-        daftarPesananJTable.removeColumn(daftarPesananJTable.getColumnModel().getColumn(1));
+        //daftarPesananJTable.removeColumn(daftarPesananJTable.getColumnModel().getColumn(0));
         
         // add selection listener
         daftarPesananJTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
@@ -720,6 +720,7 @@ public class FormPesanan extends javax.swing.JFrame {
                 
                 try  {
                     idPesananTerpilih = Integer.parseInt( daftarPesananJTable.getValueAt(daftarPesananJTable.getSelectedRow(), 0).toString() );
+                    
                 } catch (java.lang.ArrayIndexOutOfBoundsException ex) {
                     idPesananTerpilih = 0;
                 }
