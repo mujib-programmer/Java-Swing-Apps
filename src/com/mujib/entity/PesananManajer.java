@@ -61,6 +61,7 @@ public class PesananManajer {
     }
     
     public void populatePesanan() throws SQLException {
+        daftarPesanan = new ArrayList<Pesanan>();
         
         String sql="select * from pesanan";
         Statement st=dbCon.createStatement();
@@ -68,21 +69,20 @@ public class PesananManajer {
         
         while(rs.next()){            
             
-            //rs.getInt("id_paket"),rs.getInt("kategori"),rs.getString("nama_item"),rs.getInt("harga_satuan")
             Pesanan pesanan = new Pesanan();
             
             pesanan.setId_pesanan( rs.getInt("id_pesanan") );
             pesanan.setNo_meja( rs.getInt("no_meja") );
             pesanan.setItem_paket_1( rs.getString("item_paket_1") );
             pesanan.setJml_paket_1( rs.getInt("jml_paket_1") );
-            pesanan.setItem_paket_1( rs.getString("item_paket_2") );
-            pesanan.setJml_paket_1( rs.getInt("jml_paket_2") );
-            pesanan.setItem_paket_1( rs.getString("item_paket_3") );
-            pesanan.setJml_paket_1( rs.getInt("jml_paket_3") );
+            pesanan.setItem_paket_2( rs.getString("item_paket_2") );
+            pesanan.setJml_paket_2( rs.getInt("jml_paket_2") );
+            pesanan.setItem_paket_3( rs.getString("item_paket_3") );
+            pesanan.setJml_paket_3( rs.getInt("jml_paket_3") );
             pesanan.setTotal_pesanan(rs.getInt("total_pesanan") );
             pesanan.setTelah_dibayar(rs.getInt("telah_dibayar") );
             
-            daftarPesanan.add(pesanan);
+            getDaftarPesanan().add(pesanan);
             
         }
     }
@@ -90,7 +90,7 @@ public class PesananManajer {
     public int getTotalPesananByNoMeja(int noMeja){
         int totalPesanan = 0;
         
-        for(Pesanan pesanan : daftarPesanan) {
+        for(Pesanan pesanan : getDaftarPesanan()) {
             if( pesanan.getTelah_dibayar() == 0) {
                 if(pesanan.getNo_meja() == noMeja) {
                     totalPesanan = pesanan.getTotal_pesanan();
@@ -104,7 +104,7 @@ public class PesananManajer {
     public Pesanan getPesananByNoMeja(int noMeja){
         Pesanan pesananDicari = null;
         
-        for(Pesanan pesanan : daftarPesanan) {
+        for(Pesanan pesanan : getDaftarPesanan()) {
             if( pesanan.getTelah_dibayar() == 0) {
                 if(pesanan.getNo_meja() == noMeja) {
                     pesananDicari = pesanan;
@@ -126,6 +126,20 @@ public class PesananManajer {
         // simpan ke database
         ps.executeUpdate();
         
+    }
+
+    /**
+     * @return the daftarPesanan
+     */
+    public List <Pesanan> getDaftarPesanan() {
+        return daftarPesanan;
+    }
+
+    /**
+     * @param daftarPesanan the daftarPesanan to set
+     */
+    public void setDaftarPesanan(List <Pesanan> daftarPesanan) {
+        this.daftarPesanan = daftarPesanan;
     }
     
 }
