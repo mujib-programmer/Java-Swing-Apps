@@ -36,19 +36,10 @@ public class MainApps {
         
         this.fPesanan.setPaketManajer(paketManajer);
         this.fPesanan.setPesananManajer(pesananManajer);
-        
-        this.fPesanan.buildAllPaketComboBox();
-        
+                
         this.fPembayaran.setPesananManajer(pesananManajer);
         this.fPembayaran.setPaketManajer(paketManajer);
         this.fPembayaran.setPembayaranManajer(pembayaranManajer);
-        
-        try {
-            this.fPembayaran.populateDetailPembayaranJTable();
-        } catch (SQLException ex) {
-            Logger.getLogger(MainApps.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
         
     }
     

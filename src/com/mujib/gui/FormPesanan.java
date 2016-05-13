@@ -31,6 +31,7 @@ public class FormPesanan extends javax.swing.JFrame {
      */
     public FormPesanan() {
         initComponents();
+        buildAllPaketComboBox();
     }
 
     /**
@@ -465,11 +466,13 @@ public class FormPesanan extends javax.swing.JFrame {
         this.apps = apps;
     }
     
-    public void buildAllPaketComboBox() {   
+    public void buildAllPaketComboBox() {  
+        PaketManajer paketMan = new PaketManajer();
+        
         String paket1[] = new String[4];
         paket1[0] = "--Paket 1--";
         int i = 1;
-        for(Paket pkt : this.paketManajer.getDaftarPaket1()) { 
+        for(Paket pkt : paketMan.getDaftarPaket1()) { 
             paket1[i] = pkt.getNama_item();
             i++;
         }
@@ -480,7 +483,7 @@ public class FormPesanan extends javax.swing.JFrame {
         String paket2[] = new String[4];
         paket2[0] = "--Paket 2--";
         i = 1;
-        for(Paket pkt : this.paketManajer.getDaftarPaket2()) { 
+        for(Paket pkt : paketMan.getDaftarPaket2()) { 
             paket2[i] = pkt.getNama_item();
             i++;
         }
@@ -491,7 +494,7 @@ public class FormPesanan extends javax.swing.JFrame {
         String paket3[] = new String[4];
         paket3[0] = "--Paket 3--";
         i = 1;
-        for(Paket pkt : this.paketManajer.getDaftarPaket3()) { 
+        for(Paket pkt : paketMan.getDaftarPaket3()) { 
             paket3[i] = pkt.getNama_item();
             i++;
         }

@@ -38,6 +38,12 @@ public class FormPembayaran extends javax.swing.JFrame {
      */
     public FormPembayaran() {
         initComponents();
+        
+        try {
+            populateDetailPembayaranJTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(MainApps.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -491,6 +497,8 @@ public class FormPembayaran extends javax.swing.JFrame {
     }
     
     public void populateDetailPembayaranJTable() throws SQLException {
+        PembayaranManajer pembayaranMan = new PembayaranManajer();
+        
         detailPembayaranTableModel = new DefaultTableModel();
         detailPembayaranTableModel.addColumn("No Meja");
         detailPembayaranTableModel.addColumn("Total Pesanan");
@@ -500,9 +508,9 @@ public class FormPembayaran extends javax.swing.JFrame {
         
         detailPembayaranJTable.setModel(detailPembayaranTableModel);
         
-        this.getPembayaranManajer().populatePembayaran();
+        pembayaranMan.populatePembayaran();
         
-        for(Pembayaran pembayaran : this.getPembayaranManajer().getDaftarPembayaran()) {
+        for(Pembayaran pembayaran : pembayaranMan.getDaftarPembayaran()) {
             Object[] detailPembayaran = new Object[5];
             detailPembayaran[0] = pembayaran.getNo_meja();
             detailPembayaran[1] = pembayaran.getTotal_pesanan();
