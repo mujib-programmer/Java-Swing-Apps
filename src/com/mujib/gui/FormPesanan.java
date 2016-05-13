@@ -8,6 +8,8 @@ package com.mujib.gui;
 import com.mujib.MainApps;
 import com.mujib.entity.Paket;
 import com.mujib.entity.PaketManajer;
+import com.mujib.entity.Pembayaran;
+import com.mujib.entity.PembayaranManajer;
 import com.mujib.entity.Pesanan;
 import com.mujib.entity.PesananManajer;
 import java.awt.Color;
@@ -15,6 +17,10 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 
 /**
  *
@@ -26,14 +32,21 @@ public class FormPesanan extends javax.swing.JFrame {
     private PaketManajer paketManajer;
     private PesananManajer pesananManajer;
 
+    DefaultTableModel daftarPesananTableModel;
+    int idPesananTerpilih = 0;
+        
     /**
      * Creates new form FormPesanan
      */
     public FormPesanan() {
         initComponents();
-        paketManajer = new PaketManajer();
-        pesananManajer = new PesananManajer();
         buildAllPaketComboBox();
+        
+        try {
+            populateDaftarPesananJTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(FormPesanan.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -46,6 +59,8 @@ public class FormPesanan extends javax.swing.JFrame {
     private void initComponents() {
 
         jMenu3 = new javax.swing.JMenu();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         paketMakanJComboBox = new javax.swing.JComboBox();
@@ -61,7 +76,7 @@ public class FormPesanan extends javax.swing.JFrame {
         bayarPaketMinumJTextField = new javax.swing.JTextField();
         bayarPaketTambahanJTextField = new javax.swing.JTextField();
         noMejaJTextField = new javax.swing.JTextField();
-        okJButton = new javax.swing.JButton();
+        hapusJButton = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -69,6 +84,8 @@ public class FormPesanan extends javax.swing.JFrame {
         totalPesananJTextField = new javax.swing.JTextField();
         simpanJButton = new javax.swing.JButton();
         infoJLabel = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        daftarPesananJTable = new javax.swing.JTable();
         jMenuBar2 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         closeJMenuItem = new javax.swing.JMenuItem();
@@ -77,6 +94,19 @@ public class FormPesanan extends javax.swing.JFrame {
         pembayaranJMenuItem = new javax.swing.JMenuItem();
 
         jMenu3.setText("jMenu3");
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -111,16 +141,34 @@ public class FormPesanan extends javax.swing.JFrame {
             }
         });
 
+        jmlBeliPaketMakanJTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmlBeliPaketMakanJTextFieldActionPerformed(evt);
+            }
+        });
+
         jmlBeliPaketMinumJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jmlBeliPaketMinumJTextFieldActionPerformed(evt);
             }
         });
 
-        okJButton.setText("OK");
-        okJButton.addActionListener(new java.awt.event.ActionListener() {
+        jmlBeliPaketTambahanJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okJButtonActionPerformed(evt);
+                jmlBeliPaketTambahanJTextFieldActionPerformed(evt);
+            }
+        });
+
+        bayarPaketMakanJTextField.setText("0");
+
+        bayarPaketMinumJTextField.setText("0");
+
+        bayarPaketTambahanJTextField.setText("0");
+
+        hapusJButton.setText("HAPUS");
+        hapusJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hapusJButtonActionPerformed(evt);
             }
         });
 
@@ -132,12 +180,27 @@ public class FormPesanan extends javax.swing.JFrame {
 
         jLabel6.setText("TOTAL PESANAN");
 
+        totalPesananJTextField.setText("0");
+
         simpanJButton.setText("SIMPAN");
         simpanJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 simpanJButtonActionPerformed(evt);
             }
         });
+
+        daftarPesananJTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5", "Title 6"
+            }
+        ));
+        jScrollPane2.setViewportView(daftarPesananJTable);
 
         jMenu1.setText("File");
 
@@ -178,33 +241,6 @@ public class FormPesanan extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(paketTambahanJComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(paketMinumJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(hargaPaketMinumJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
-                                    .addComponent(hargaPaketTambahanJTextField))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jmlBeliPaketMinumJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(bayarPaketMinumJTextField))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                        .addComponent(jmlBeliPaketTambahanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(totalPesananJTextField)
-                                            .addComponent(bayarPaketTambahanJTextField)
-                                            .addComponent(simpanJButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                                .addGap(67, 67, 67))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(paketMakanJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
@@ -218,14 +254,8 @@ public class FormPesanan extends javax.swing.JFrame {
                                 .addComponent(jLabel3)))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(bayarPaketMakanJTextField)
-                                    .addComponent(okJButton, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
-                                .addGap(67, 67, 67))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(jLabel5)
+                            .addComponent(bayarPaketMakanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
@@ -233,7 +263,35 @@ public class FormPesanan extends javax.swing.JFrame {
                         .addGap(31, 31, 31)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(noMejaJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(infoJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 403, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addComponent(infoJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 403, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(paketTambahanJComboBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(paketMinumJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(hargaPaketMinumJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                                    .addComponent(hargaPaketTambahanJTextField))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addComponent(jmlBeliPaketMinumJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(bayarPaketMinumJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addComponent(jmlBeliPaketTambahanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(hapusJButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(simpanJButton, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+                                            .addComponent(totalPesananJTextField)
+                                            .addComponent(bayarPaketTambahanJTextField))))))))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 625, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -243,41 +301,45 @@ public class FormPesanan extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(infoJLabel))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(noMejaJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(okJButton))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel3)
-                        .addComponent(jLabel4)))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(paketMakanJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(hargaPaketMakanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jmlBeliPaketMakanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bayarPaketMakanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(paketMinumJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(hargaPaketMinumJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jmlBeliPaketMinumJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bayarPaketMinumJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(paketTambahanJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(hargaPaketTambahanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jmlBeliPaketTambahanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bayarPaketTambahanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(totalPesananJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(noMejaJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel3)
+                                .addComponent(jLabel4)))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(paketMakanJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(hargaPaketMakanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jmlBeliPaketMakanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(bayarPaketMakanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(paketMinumJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(hargaPaketMinumJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jmlBeliPaketMinumJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(bayarPaketMinumJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(paketTambahanJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(hargaPaketTambahanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jmlBeliPaketTambahanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(bayarPaketTambahanJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel6)
+                            .addComponent(totalPesananJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(simpanJButton)
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(hapusJButton)
+                .addContainerGap(36, Short.MAX_VALUE))
         );
 
         pack();
@@ -285,28 +347,51 @@ public class FormPesanan extends javax.swing.JFrame {
 
     private void jmlBeliPaketMinumJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmlBeliPaketMinumJTextFieldActionPerformed
         // TODO add your handling code here:
+        int jmlBeliPaketMinum = Integer.parseInt(jmlBeliPaketMinumJTextField.getText());
+        int bayarPaketMinum = jmlBeliPaketMinum * (Integer.parseInt(hargaPaketMinumJTextField.getText()));
+        bayarPaketMinumJTextField.setText( Integer.toString(bayarPaketMinum) );
+        
+        setTotalPesanan();
     }//GEN-LAST:event_jmlBeliPaketMinumJTextFieldActionPerformed
 
     private void hargaPaketMinumJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hargaPaketMinumJTextFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_hargaPaketMinumJTextFieldActionPerformed
 
-    private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
+    private void hapusJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hapusJButtonActionPerformed
         // TODO add your handling code here:
-        int jmlBeliPaketMakan = Integer.parseInt(jmlBeliPaketMakanJTextField.getText());
-        int jmlBeliPaketMinum = Integer.parseInt(jmlBeliPaketMinumJTextField.getText());
-        int jmlBeliPaketTambahan = Integer.parseInt(jmlBeliPaketTambahanJTextField.getText());
+        if (idPesananTerpilih == 0) {
+            infoJLabel.setText("Pilih pesanan pada tabel yang ingin dihapus!");
+            infoJLabel.setForeground(Color.red);
+        } else {
+            
+            //System.out.println("idPesananTerpilih : " + idPesananTerpilih);
+            
+            boolean hapusPesananSukses = false;
+            
+            try {
+                hapusPesananSukses = this.pesananManajer.hapusPesanan(idPesananTerpilih);
+            } catch (SQLException ex) {
+                Logger.getLogger(FormPesanan.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            if (hapusPesananSukses) {
+                infoJLabel.setText("Data pesanan berhasil dihapus");
+                infoJLabel.setForeground(Color.blue);
+                
+                try {
+                    this.populateDaftarPesananJTable();
+                } catch (SQLException ex) {
+                    Logger.getLogger(FormPesanan.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            } else {
+                infoJLabel.setText("Data pesanan gagal dihapus!");
+                infoJLabel.setForeground(Color.red);
+            }
+        }
         
-        int bayarPaketMakan = jmlBeliPaketMakan * (Integer.parseInt(hargaPaketMakanJTextField.getText()));
-        int bayarPaketMinum = jmlBeliPaketMinum * (Integer.parseInt(hargaPaketMinumJTextField.getText()));
-        int bayarPaketTambahan = jmlBeliPaketTambahan * (Integer.parseInt(hargaPaketTambahanJTextField.getText()));
-        
-        bayarPaketMakanJTextField.setText(Integer.toString(bayarPaketMakan));
-        bayarPaketMinumJTextField.setText(Integer.toString(bayarPaketMinum));
-        bayarPaketTambahanJTextField.setText(Integer.toString(bayarPaketTambahan));
-        
-        totalPesananJTextField.setText(Integer.toString(bayarPaketMakan + bayarPaketMinum + bayarPaketTambahan));
-    }//GEN-LAST:event_okJButtonActionPerformed
+    }//GEN-LAST:event_hapusJButtonActionPerformed
 
     private void closeJMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJMenuItemActionPerformed
         // TODO add your handling code here:
@@ -374,6 +459,12 @@ public class FormPesanan extends javax.swing.JFrame {
             infoJLabel.setForeground(Color.blue);
             this.resetForm();
             
+            try {
+                populateDaftarPesananJTable();
+            } catch (SQLException ex) {
+                Logger.getLogger(FormPesanan.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         } catch (SQLException ex) {
             infoJLabel.setText("Data pesanan GAGAL disimpan.");
             infoJLabel.setForeground(Color.red);
@@ -384,6 +475,34 @@ public class FormPesanan extends javax.swing.JFrame {
         
     }//GEN-LAST:event_simpanJButtonActionPerformed
 
+    private void jmlBeliPaketMakanJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmlBeliPaketMakanJTextFieldActionPerformed
+        // TODO add your handling code here:
+        int jmlBeliPaketMakan = Integer.parseInt(jmlBeliPaketMakanJTextField.getText());
+        int bayarPaketMakan = jmlBeliPaketMakan * (Integer.parseInt(hargaPaketMakanJTextField.getText()));
+        bayarPaketMakanJTextField.setText( Integer.toString(bayarPaketMakan) );
+        
+        setTotalPesanan();
+    }//GEN-LAST:event_jmlBeliPaketMakanJTextFieldActionPerformed
+
+    private void jmlBeliPaketTambahanJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmlBeliPaketTambahanJTextFieldActionPerformed
+        // TODO add your handling code here:
+        int jmlBeliPaketTambahan = Integer.parseInt(jmlBeliPaketTambahanJTextField.getText());
+        int bayarPaketTambahan = jmlBeliPaketTambahan * (Integer.parseInt(hargaPaketTambahanJTextField.getText()));
+        
+        bayarPaketTambahanJTextField.setText( Integer.toString(bayarPaketTambahan) );
+        
+        setTotalPesanan();
+    }//GEN-LAST:event_jmlBeliPaketTambahanJTextFieldActionPerformed
+
+    private void setTotalPesanan() {
+        int bayarPaketMakan = Integer.parseInt( bayarPaketMakanJTextField.getText() );
+        int bayarPaketMinum = Integer.parseInt( bayarPaketMinumJTextField.getText() );
+        int bayarPaketTambahan = Integer.parseInt( bayarPaketTambahanJTextField.getText() );
+        
+        totalPesananJTextField.setText(Integer.toString(bayarPaketMakan + bayarPaketMinum + bayarPaketTambahan));
+
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -426,6 +545,8 @@ public class FormPesanan extends javax.swing.JFrame {
     private javax.swing.JTextField bayarPaketMinumJTextField;
     private javax.swing.JTextField bayarPaketTambahanJTextField;
     private javax.swing.JMenuItem closeJMenuItem;
+    private javax.swing.JTable daftarPesananJTable;
+    private javax.swing.JButton hapusJButton;
     private javax.swing.JTextField hargaPaketMakanJTextField;
     private javax.swing.JTextField hargaPaketMinumJTextField;
     private javax.swing.JTextField hargaPaketTambahanJTextField;
@@ -440,11 +561,13 @@ public class FormPesanan extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jmlBeliPaketMakanJTextField;
     private javax.swing.JTextField jmlBeliPaketMinumJTextField;
     private javax.swing.JTextField jmlBeliPaketTambahanJTextField;
     private javax.swing.JTextField noMejaJTextField;
-    private javax.swing.JButton okJButton;
     private javax.swing.JComboBox paketMakanJComboBox;
     private javax.swing.JComboBox paketMinumJComboBox;
     private javax.swing.JComboBox paketTambahanJComboBox;
@@ -468,11 +591,13 @@ public class FormPesanan extends javax.swing.JFrame {
         this.apps = apps;
     }
     
-    public void buildAllPaketComboBox() {   
+    public void buildAllPaketComboBox() {  
+        PaketManajer paketMan = new PaketManajer();
+        
         String paket1[] = new String[4];
         paket1[0] = "--Paket 1--";
         int i = 1;
-        for(Paket pkt : this.paketManajer.getDaftarPaket1()) { 
+        for(Paket pkt : paketMan.getDaftarPaket1()) { 
             paket1[i] = pkt.getNama_item();
             i++;
         }
@@ -483,7 +608,7 @@ public class FormPesanan extends javax.swing.JFrame {
         String paket2[] = new String[4];
         paket2[0] = "--Paket 2--";
         i = 1;
-        for(Paket pkt : this.paketManajer.getDaftarPaket2()) { 
+        for(Paket pkt : paketMan.getDaftarPaket2()) { 
             paket2[i] = pkt.getNama_item();
             i++;
         }
@@ -494,7 +619,7 @@ public class FormPesanan extends javax.swing.JFrame {
         String paket3[] = new String[4];
         paket3[0] = "--Paket 3--";
         i = 1;
-        for(Paket pkt : this.paketManajer.getDaftarPaket3()) { 
+        for(Paket pkt : paketMan.getDaftarPaket3()) { 
             paket3[i] = pkt.getNama_item();
             i++;
         }
@@ -548,5 +673,61 @@ public class FormPesanan extends javax.swing.JFrame {
         paketMinumJComboBox.setSelectedIndex(0);
         paketTambahanJComboBox.setSelectedIndex(0);
     }
+    
+    public void populateDaftarPesananJTable() throws SQLException {
+        PesananManajer pesananMan = new PesananManajer();
+        
+        daftarPesananTableModel = new DefaultTableModel();
+        daftarPesananTableModel.addColumn("Id Pesanan");
+        daftarPesananTableModel.addColumn("No Meja");
+        daftarPesananTableModel.addColumn("Pil.Paket 1");
+        daftarPesananTableModel.addColumn("Pil.Paket 2");
+        daftarPesananTableModel.addColumn("Pil.Paket 3");
+        daftarPesananTableModel.addColumn("Total Pesanan");
+        daftarPesananTableModel.addColumn("Bayar");
+        
+        daftarPesananJTable.setModel(daftarPesananTableModel);
+        
+        pesananMan.populatePesanan();
+        
+        for(Pesanan pesanan : pesananMan.getDaftarPesanan()) {
+            Object[] daftarPesanan = new Object[7];
+            daftarPesanan[0] = pesanan.getId_pesanan();
+            daftarPesanan[1] = pesanan.getNo_meja();
+            daftarPesanan[2] = pesanan.getItem_paket_1();
+            daftarPesanan[3] = pesanan.getItem_paket_2();
+            daftarPesanan[4] = pesanan.getItem_paket_3();
+            daftarPesanan[5] = pesanan.getTotal_pesanan();
+            
+            String telahDibayar = "";
+            if ( pesanan.getTelah_dibayar() == 1 ) {
+                telahDibayar = "OK";
+            }
+            
+            daftarPesanan[6] = telahDibayar;
+            
+            daftarPesananTableModel.addRow(daftarPesanan);
+            
+        }
+        
+        // sembunyikan row ID Pesanan
+        //daftarPesananJTable.removeColumn(daftarPesananJTable.getColumnModel().getColumn(0));
+        
+        // add selection listener
+        daftarPesananJTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                
+                try  {
+                    idPesananTerpilih = Integer.parseInt( daftarPesananJTable.getValueAt(daftarPesananJTable.getSelectedRow(), 0).toString() );
+                    
+                } catch (java.lang.ArrayIndexOutOfBoundsException ex) {
+                    idPesananTerpilih = 0;
+                }
+            }
+        });
+        
+    }
+    
 }
 

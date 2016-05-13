@@ -6,6 +6,7 @@
 package com.mujib.gui;
 
 import com.mujib.MainApps;
+import com.mujib.entity.PaketManajer;
 import com.mujib.entity.Pembayaran;
 import com.mujib.entity.PembayaranManajer;
 import com.mujib.entity.Pesanan;
@@ -15,6 +16,8 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -24,24 +27,25 @@ import javax.swing.table.DefaultTableModel;
 public class FormPembayaran extends javax.swing.JFrame {
     
     private MainApps apps;
+    private PaketManajer paketManajer;
     private PesananManajer pesananManajer;
     private PembayaranManajer pembayaranManajer;
     Pesanan pesananDitemukan;
     int totalPendapatan = 0;
 
     DefaultTableModel detailPembayaranTableModel;
+    DefaultTableModel daftarPesananTableModel;
     
     /**
      * Creates new form FormPembayaran
      */
     public FormPembayaran() {
         initComponents();
-        //pesananManajer = new PesananManajer();
-        pembayaranManajer = new PembayaranManajer();
+        
         try {
-            populateDetailPembayaranJTable();
+            populateDaftarPesananJTable();
         } catch (SQLException ex) {
-            Logger.getLogger(FormPembayaran.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainApps.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -74,7 +78,7 @@ public class FormPembayaran extends javax.swing.JFrame {
         strukJButton = new javax.swing.JButton();
         bayarJButton = new javax.swing.JButton();
         jScrollPane4 = new javax.swing.JScrollPane();
-        detailPembayaranJTable = new javax.swing.JTable();
+        daftarPesananJTable = new javax.swing.JTable();
         jLabel7 = new javax.swing.JLabel();
         totalPendapatanJTextField = new javax.swing.JTextField();
         cariJButton = new javax.swing.JButton();
@@ -137,7 +141,7 @@ public class FormPembayaran extends javax.swing.JFrame {
             }
         });
 
-        detailPembayaranJTable.setModel(new javax.swing.table.DefaultTableModel(
+        daftarPesananJTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -148,7 +152,7 @@ public class FormPembayaran extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane4.setViewportView(detailPembayaranJTable);
+        jScrollPane4.setViewportView(daftarPesananJTable);
 
         jLabel7.setText("TOTAL PENDAPATAN");
 
@@ -218,14 +222,15 @@ public class FormPembayaran extends javax.swing.JFrame {
                                     .addComponent(uangKembaliJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 112, Short.MAX_VALUE)))
                             .addComponent(strukJButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2)
-                            .addComponent(bayarJButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE)
+                            .addComponent(bayarJButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addGap(18, 18, 18)
                         .addComponent(infoJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jScrollPane4)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 1041, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jLabel7)
@@ -293,17 +298,17 @@ public class FormPembayaran extends javax.swing.JFrame {
     private void cariJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cariJButtonActionPerformed
         // TODO add your handling code here:
         int noMeja = Integer.parseInt(noMejaJTextField.getText());
-        PesananManajer pesananManajer = this.apps.getPesananManajer();
+        pesananManajer = this.apps.getPesananManajer();
         try {
             pesananManajer.populatePesanan();
         } catch (SQLException ex) {
             Logger.getLogger(FormPembayaran.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        pesananDitemukan = pesananManajer.getPesananByNoMeja(noMeja);
+        this.pesananDitemukan = pesananManajer.getPesananByNoMeja(noMeja);
         int totalPesanan;
-        if (pesananDitemukan != null) {
-            totalPesanan = pesananDitemukan.getTotal_pesanan();
+        if (this.pesananDitemukan != null) {
+            totalPesanan = this.pesananDitemukan.getTotal_pesanan();
         } else {
             totalPesanan = pesananManajer.getTotalPesananByNoMeja(noMeja);
         }
@@ -331,7 +336,11 @@ public class FormPembayaran extends javax.swing.JFrame {
         int uangPembayaran = Integer.parseInt(uangPembayaranJTextField.getText());
         int uangKembali = uangPembayaran - (totalPesanan + ppn );
         uangKembaliJTextField.setText(Integer.toString(uangKembali));
-        String struk = "No Meja: " + noMejaJTextField.getText() + "\n";
+        String struk = "Konten Struk: " + "\n";
+        struk = "No Meja: " + noMejaJTextField.getText() + "\n";
+        struk += "Pil. Paket 1: " + pesananDitemukan.getJml_paket_1() + "@" + paketManajer.getHargaPaketByNamaItemAndCategory(pesananDitemukan.getItem_paket_1(), 1) + "\n";
+        struk += "Pil. Paket 2: " + pesananDitemukan.getJml_paket_2() + "@" + paketManajer.getHargaPaketByNamaItemAndCategory(pesananDitemukan.getItem_paket_2(), 2) + "\n";
+        struk += "Pil. Paket 3: " + pesananDitemukan.getJml_paket_3() + "@" + paketManajer.getHargaPaketByNamaItemAndCategory(pesananDitemukan.getItem_paket_3(), 3) + "\n";      
         struk += "Total Pesanan: " + totalPesanan + "\n";
         struk += "PPN: " + ppn + "\n";
         struk += "Uang Pembayaran: " + uangPembayaran + "\n";
@@ -353,35 +362,36 @@ public class FormPembayaran extends javax.swing.JFrame {
         pembayaran.setStruk(strukJTextArea.getText());
         
         try {
-            pembayaranManajer.savePembayaranToDb(pembayaran);
+            getPembayaranManajer().savePembayaranToDb(pembayaran);
             
             // tandai pesanan sudah dibayar
-            pesananManajer.pesananTelahDibayar(pesananDitemukan);
+            //System.out.println("id pesanan adalah " + this.pesananDitemukan.getId_pesanan());
+            pesananManajer.pesananTelahDibayar(this.pesananDitemukan); // ada bug disini, mungkin object pesananDitemukan tidak ada
             
             // beri pesan jika simpan database berhasil
-            //infoJLabel.setText("Data pembayaran berhasil disimpan.");
-            //infoJLabel.setForeground(Color.blue);
-            JOptionPane.showMessageDialog(
-                    this
-                    , "Data pembayaran berhasil disimpan"
-                    , "Informasi"
-                    , JOptionPane.INFORMATION_MESSAGE
-            );
+            infoJLabel.setText("Data pembayaran berhasil disimpan.");
+            infoJLabel.setForeground(Color.blue);
+            //JOptionPane.showMessageDialog(
+            //        this
+            //        , "Data pembayaran berhasil disimpan"
+            //        , "Informasi"
+            //        , JOptionPane.INFORMATION_MESSAGE
+            //);
             
             this.resetForm();
             
-            detailPembayaranTableModel.fireTableDataChanged();
+            this.populateDaftarPesananJTable();
                         
         } catch (SQLException ex) {
             //infoJLabel.setText("Data pembayaran GAGAL disimpan.");
             //infoJLabel.setForeground(Color.red);
             
-            JOptionPane.showMessageDialog(
-                    this
-                    , "Data pembayaran GAGAL disimpan"
-                    , "Terjadi Kesalahan"
-                    , JOptionPane.ERROR_MESSAGE
-            );
+            //JOptionPane.showMessageDialog(
+            //        this
+            //        , "Data pembayaran GAGAL disimpan"
+            //        , "Terjadi Kesalahan"
+            //        , JOptionPane.ERROR_MESSAGE
+            //);
             
             Logger.getLogger(FormPembayaran.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -427,7 +437,7 @@ public class FormPembayaran extends javax.swing.JFrame {
     private javax.swing.JButton bayarJButton;
     private javax.swing.JButton cariJButton;
     private javax.swing.JMenuItem closeJMenuItem;
-    private javax.swing.JTable detailPembayaranJTable;
+    private javax.swing.JTable daftarPesananJTable;
     private javax.swing.JLabel infoJLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -494,31 +504,89 @@ public class FormPembayaran extends javax.swing.JFrame {
         strukJTextArea.setText("");
     }
     
-    public void populateDetailPembayaranJTable() throws SQLException {
-        detailPembayaranTableModel = new DefaultTableModel();
-        detailPembayaranTableModel.addColumn("No Meja");
-        detailPembayaranTableModel.addColumn("Total Pesanan");
-        detailPembayaranTableModel.addColumn("PPN");
-        detailPembayaranTableModel.addColumn("Uang Pembayaran");
-        detailPembayaranTableModel.addColumn("Uang Kembali");
+    public void populateDaftarPesananJTable() throws SQLException {
+        PesananManajer pesananMan = new PesananManajer();
+        PaketManajer paketManajer = new PaketManajer();
         
-        detailPembayaranJTable.setModel(detailPembayaranTableModel);
+        daftarPesananTableModel = new DefaultTableModel();
+        daftarPesananTableModel.addColumn("Id Pesanan");
+        daftarPesananTableModel.addColumn("No Meja");
+        daftarPesananTableModel.addColumn("Pil.Paket 1");
+        daftarPesananTableModel.addColumn("Jml. Paket 1");
+        daftarPesananTableModel.addColumn("Pil.Paket 2");
+        daftarPesananTableModel.addColumn("Jml. Paket 2");
+        daftarPesananTableModel.addColumn("Pil.Paket 3");
+        daftarPesananTableModel.addColumn("Jml. Paket 3");
+        daftarPesananTableModel.addColumn("Total Pesanan");
+        daftarPesananTableModel.addColumn("Bayar");
         
-        this.pembayaranManajer.populatePembayaran();
+        daftarPesananJTable.setModel(daftarPesananTableModel);
         
-        for(Pembayaran pembayaran : this.pembayaranManajer.getDaftarPembayaran()) {
-            Object[] detailPembayaran = new Object[5];
-            detailPembayaran[0] = pembayaran.getNo_meja();
-            detailPembayaran[1] = pembayaran.getTotal_pesanan();
-            detailPembayaran[2] = pembayaran.getPpn();
-            detailPembayaran[3] = pembayaran.getUang_pembayaran();
-            detailPembayaran[4] = pembayaran.getUang_kembali();
+        pesananMan.populatePesanan();
+        
+        int totalPesanan = 0;
+        
+        for(Pesanan pesanan : pesananMan.getDaftarPesanan()) {
+            Object[] daftarPesanan = new Object[11];
+            daftarPesanan[0] = pesanan.getId_pesanan();
+            daftarPesanan[1] = pesanan.getNo_meja();
+            daftarPesanan[2] = pesanan.getItem_paket_1();
+            daftarPesanan[3] = pesanan.getJml_paket_1();
+            daftarPesanan[4] = pesanan.getItem_paket_2();
+            daftarPesanan[5] = pesanan.getJml_paket_2();
+            daftarPesanan[6] = pesanan.getItem_paket_3();
+            daftarPesanan[7] = pesanan.getItem_paket_3();
+            daftarPesanan[8] = pesanan.getTotal_pesanan();
             
-            detailPembayaranTableModel.addRow(detailPembayaran);
+            String telahDibayar = "";
+            if ( pesanan.getTelah_dibayar() == 1 ) {
+                telahDibayar = "OK";
+            }
             
-            totalPendapatan += pembayaran.getTotal_pesanan();
-            totalPendapatanJTextField.setText(Integer.toString(totalPendapatan));
+            daftarPesanan[9] = telahDibayar;
+            
+            daftarPesananTableModel.addRow(daftarPesanan);
+            
+            int jumlahPaket1 = pesanan.getJml_paket_1();
+            int hargaPaket1 = paketManajer.getHargaPaketByNamaItemAndCategory(pesanan.getItem_paket_1(), 1);
+            int jumlahPaket2 = pesanan.getJml_paket_2();
+            int hargaPaket2 = paketManajer.getHargaPaketByNamaItemAndCategory(pesanan.getItem_paket_2(), 2);
+            int jumlahPaket3 = pesanan.getJml_paket_3();
+            int hargaPaket3 = paketManajer.getHargaPaketByNamaItemAndCategory(pesanan.getItem_paket_3(), 3);
+            
+            int subPesanan = (jumlahPaket1 * hargaPaket1) + (jumlahPaket2 * hargaPaket2) + (jumlahPaket3 * hargaPaket3);
+            totalPesanan += subPesanan;
         }
         
+        totalPendapatanJTextField.setText(Integer.toString(totalPesanan));
+        
+    }
+
+    /**
+     * @return the pembayaranManajer
+     */
+    public PembayaranManajer getPembayaranManajer() {
+        return pembayaranManajer;
+    }
+
+    /**
+     * @param pembayaranManajer the pembayaranManajer to set
+     */
+    public void setPembayaranManajer(PembayaranManajer pembayaranManajer) {
+        this.pembayaranManajer = pembayaranManajer;
+    }
+
+    /**
+     * @return the paketManajer
+     */
+    public PaketManajer getPaketManajer() {
+        return paketManajer;
+    }
+
+    /**
+     * @param paketManajer the paketManajer to set
+     */
+    public void setPaketManajer(PaketManajer paketManajer) {
+        this.paketManajer = paketManajer;
     }
 }

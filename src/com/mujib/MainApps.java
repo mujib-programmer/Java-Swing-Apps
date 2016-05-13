@@ -6,9 +6,13 @@
 package com.mujib;
 
 import com.mujib.entity.PaketManajer;
+import com.mujib.entity.PembayaranManajer;
 import com.mujib.entity.PesananManajer;
 import com.mujib.gui.FormPembayaran;
 import com.mujib.gui.FormPesanan;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,13 +23,23 @@ public class MainApps {
     FormPesanan fPesanan;
     FormPembayaran fPembayaran;
     PaketManajer paketManajer;
+    PembayaranManajer pembayaranManajer;
     private PesananManajer pesananManajer;
     
     public MainApps() {
         this.fPesanan = new FormPesanan();
         this.fPembayaran = new FormPembayaran();
-        this.paketManajer = this.fPesanan.getPaketManajer();
-        this.pesananManajer = this.fPesanan.getPesananManajer();
+        
+        paketManajer = new PaketManajer();
+        pesananManajer = new PesananManajer();
+        pembayaranManajer = new PembayaranManajer();
+        
+        this.fPesanan.setPaketManajer(paketManajer);
+        this.fPesanan.setPesananManajer(pesananManajer);
+                
+        this.fPembayaran.setPesananManajer(pesananManajer);
+        this.fPembayaran.setPaketManajer(paketManajer);
+        this.fPembayaran.setPembayaranManajer(pembayaranManajer);
         
     }
     
@@ -43,11 +57,23 @@ public class MainApps {
     }
     
     public void showFormPesanan() {
+        try {
+            this.fPembayaran.populateDaftarPesananJTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(MainApps.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         this.fPesanan.setVisible(true);
         this.fPembayaran.setVisible(false);
     }
     
     public void showFormPembayaran() {
+        try {
+            this.fPesanan.populateDaftarPesananJTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(MainApps.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         this.fPesanan.setVisible(false);
         this.fPembayaran.setVisible(true);
     }
